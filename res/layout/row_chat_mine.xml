@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical" >
+
+     <TextView
+        android:id="@+id/timeView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="10dp"/>
+    
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="right"
+        android:paddingLeft="8.0dip"
+        android:orientation="horizontal" >
+        
+         <TextView
+            android:id="@+id/soundView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxWidth="30dp"
+            android:paddingBottom="10dp"
+            android:paddingRight="5dp"
+            android:paddingTop="10dp"
+            android:text="1&quot;"
+            android:textColor="#999999"
+            android:visibility="gone" />
+        
+          <LinearLayout 
+                android:layout_width="wrap_content"
+               	android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                
+            <TextView 
+                android:id="@+id/nameView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                />  
+            <TextView
+                android:id="@+id/msgView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:background="@drawable/msg_bg_mine"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="15dp"
+                android:paddingTop="10dp"
+                android:textSize="15sp"
+                android:maxWidth="200dp"
+                android:textColor="#ffffff"
+                 />
+            
+             <ImageView
+                 android:id="@+id/imgView"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:background="@drawable/msg_bg_mine"
+                 android:paddingBottom="5dp"
+                 android:paddingLeft="5dp"
+                 android:paddingRight="10dp"
+                 android:paddingTop="5dp"
+                 android:visibility="gone"/>
+             
+             <ImageView
+                 android:id="@+id/gifImgView"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:paddingBottom="5dp"
+                 android:paddingLeft="5dp"
+                 android:paddingRight="10dp"
+                 android:paddingTop="5dp"
+                 android:visibility="gone"/>
+             
+              <ImageView
+                  android:id="@+id/voiceView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="fill_parent"
+                  android:layout_gravity="center"
+                  android:background="@drawable/msg_bg_mine"
+                  android:paddingBottom="10dp"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="15dp"
+                  android:paddingTop="10dp"
+                  android:layout_marginTop="5dp"
+                  android:layout_marginBottom="5dp"
+                  android:src="@drawable/voiceto0" 
+                  android:visibility="gone"/>
+               
+           		 <com.d3.d3xmpp.d3View.gifView.GifView
+			        android:id="@+id/gifView" 
+			        android:layout_height="wrap_content" 
+			        android:layout_width="wrap_content"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <com.d3.d3xmpp.util.CircularImage
+                android:id="@+id/headImg"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+           		android:scaleType="fitXY"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"     
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="5dp" />
+    </LinearLayout>
+
+</LinearLayout>

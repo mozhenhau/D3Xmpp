@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    
+    <color name="white">#FFFFFF</color>
+    <color name="black">#ff000000</color>
+    <color name="grey">#FF999999</color>
+    <color name="light_grey">#99999999</color>
+    <color name="dark_grey">#FF666666</color>
+    <color name="grey_e">#FFeeeeee</color>
+  <!-- 透明颜色 -->
+    <color name="transparent_background">#00000000</color>
+    <color name="transparent">#80000000</color>
+    <color name="blue">#ff94c7e7</color>
+    <color name="green">#ff55c45f</color>
+    <color name="line_color">#959595</color>
+    <color name="bg_gray">#f1f1f1</color>
+    <color name="btn_pre">#92DAC7</color>
+    <color name="theme_color">#37af94</color>
+    <color name="province_line_border">#C7C7C7</color>
+</resources>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_gray"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:padding="0dp" >
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:background="@color/bg_gray" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="140dip"
+        android:layout_gravity="center" />
+
+    <LinearLayout
+        android:id="@+id/page_select"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_gray"
+        android:gravity="center_horizontal"
+        android:paddingBottom="5dp" >
+
+        <ImageView
+            android:id="@+id/page0_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="matrix"
+            android:src="@drawable/dot_chosed" />
+
+        <ImageView
+            android:id="@+id/page1_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:scaleType="matrix"
+            android:src="@drawable/dot_nor" />
+
+        <ImageView
+            android:id="@+id/page2_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:scaleType="matrix"
+            android:src="@drawable/dot_nor" />
+    </LinearLayout>
+    <!-- 表情 -->
+
+    <LinearLayout
+        android:id="@+id/page_select_gif"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/btn_pre"
+        android:gravity="left"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/exp_normal_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/theme_color"
+            android:paddingBottom="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp" >
+
+            <ImageView
+                android:id="@+id/page_normal_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:scaleType="matrix"
+                android:src="@drawable/icon_smile"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="2dp"
+                android:layout_toRightOf="@id/page_normal_select"
+                android:text="经典"
+                android:textColor="#fff" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/exp_gif_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp" >
+
+            <ImageView
+                android:id="@+id/page_gif_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:scaleType="matrix"
+                android:src="@drawable/icon_smile"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="2dp"
+                android:layout_toRightOf="@id/page_gif_select"
+                android:text="动态"
+                android:textColor="#fff" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

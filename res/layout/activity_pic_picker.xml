@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:scrollbarStyle="outsideOverlay" >
+
+    <RelativeLayout
+        android:id="@+id/from_gallery"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center_horizontal"
+        android:background="@drawable/btn_bg" >
+
+        <TextView
+            android:id="@+id/gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="15dp"
+            android:text="从图库选择"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+        
+        <ImageView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_gallery"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/gallery"
+            />
+    </RelativeLayout>
+
+   <RelativeLayout
+        android:id="@+id/from_camera"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_below="@id/from_gallery"
+        android:background="@drawable/btn_bg" >
+
+        <TextView
+            android:id="@+id/camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="15dp"
+            android:text="从相机选择"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+        
+        <ImageView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_camera"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/camera"
+            />
+    </RelativeLayout>
+
+
+</RelativeLayout>

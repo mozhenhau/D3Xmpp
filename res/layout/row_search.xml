@@ -1,0 +1,27 @@
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" >
+
+        <com.d3.d3xmpp.util.CircularImage
+            android:id="@+id/imgView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+           	android:scaleType="fitXY"
+            android:layout_margin="10dp" />
+
+        <TextView
+            android:id="@+id/nameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/addBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="同意" />
+
+    </LinearLayout>

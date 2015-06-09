@@ -1,0 +1,117 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.d3.d3xmpp"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+    
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:name="com.d3.d3xmpp.constant.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        
+        
+        <activity
+            android:name="com.d3.d3xmpp.activites.LoginActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.RegActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ChatActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ChangePwdActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.PicSrcPickerActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.CropImageActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.SearchActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.FriendActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.NewFriendActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.LeaveActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ChoseActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.MyRoomActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.RoomMemActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ChoseSPActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ForgetPwdActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.WebActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.ShowPicActivitiy"
+            android:screenOrientation="portrait" >
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_gray"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical" >
+
+    <LinearLayout 
+        android:id="@+id/cateLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#959595" />
+
+    <TextView
+        android:id="@+id/cateView"
+        style="@style/ContactCate"
+        android:layout_height="wrap_content"
+        android:background="@color/light_grey"
+        android:paddingRight="4.0dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/contactItemlayout"
+        style="@style/ContactListItem"
+        android:layout_height="wrap_content"
+        android:background="#00000000" >
+
+        <com.d3.d3xmpp.util.CircularImage
+            android:id="@+id/headImg"
+            android:layout_width="46.0dip"
+            android:layout_height="46.0dip"
+           		android:scaleType="fitXY"/>
+
+         <TextView
+             android:id="@+id/nickView"
+             style="@style/ContactName"
+             android:layout_width="0dp"
+             android:layout_weight="1"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_vertical"
+             android:layout_marginLeft="10dp"
+             android:singleLine="true" />
+         
+         
+         <TextView
+              android:id="@+id/countView"
+              android:layout_width="15dp"
+              android:layout_height="15dp"
+              android:layout_alignParentRight="true"
+              android:background="@drawable/shape_dot"
+              android:gravity="center"
+              android:textColor="@color/white"
+              android:visibility="gone"
+              android:textSize="8dp"/>
+         
+         <ImageView 
+             android:id="@+id/selectBtn"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:src="@drawable/login_check"
+             android:visibility="gone"
+             />
+    </LinearLayout>
+
+</LinearLayout>

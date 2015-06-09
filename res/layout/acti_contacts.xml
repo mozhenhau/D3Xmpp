@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/search_input_bg"
+                android:gravity="center" >
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp" >
+
+                    <EditText
+                        android:id="@+id/searchText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="false"
+                        android:layout_centerVertical="false"
+                		android:singleLine="true"
+                        android:background="@drawable/input_bg" />
+
+                    <ImageView
+                        android:id="@+id/searchImg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/search" />
+                </RelativeLayout>
+            </LinearLayout>
+
+          <!--   <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical" >
+
+                <Button
+                    android:id="@+id/addBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/transparent_background"
+                    android:drawableLeft="@drawable/news_friends_icon"
+                    android:drawablePadding="5dp"
+                    android:gravity="left|center_vertical"
+                    android:text="@string/add_new_friends" />
+
+                <TextView
+                    android:id="@+id/newCountView"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/shape_red_round"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/groupBtn"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/transparent_background"
+                android:drawableLeft="@drawable/group_chat_icon"
+                android:drawablePadding="5dp"
+                android:gravity="left|center_vertical"
+                android:text="@string/group_chat" /> -->
+            
+         <com.d3.d3xmpp.d3View.MyListView
+            android:id="@+id/listView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:divider="#00000000" />
+
+        </LinearLayout>
+
+        <com.d3.d3xmpp.util.MySideBar
+            android:id="@+id/sideBar"
+            android:layout_width="30dip"
+            android:layout_height="fill_parent"
+            android:layout_gravity="right"
+            android:layout_marginBottom="5dp" />
+    </FrameLayout>
+
+</LinearLayout>

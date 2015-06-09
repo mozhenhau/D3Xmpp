@@ -1,0 +1,45 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 收益 -->
+    <style name="white30Text">
+        <item name="android:textSize">60sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="white14Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="white28Text">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="white25Text">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="white16Text">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="white20Text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+	<style name="black18Text">
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">@color/black</item>
+	</style>
+	<style name="black17Text">
+		<item name="android:textSize">17sp</item>
+		<item name="android:textColor">@color/black</item>
+	</style>
+	<style name="black16Text">
+		<item name="android:textSize">16sp</item>
+		<item name="android:textColor">@color/black</item>
+	</style>
+</resources>
