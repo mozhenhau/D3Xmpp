@@ -178,4 +178,10 @@ public class MsgFragment extends D3Fragment{
 		}
 		super.onDestroy();
 	}
+	
+	@Override
+	public void onResume() {
+		searchText.clearFocus();
+		super.onResume();
+	}
 }

@@ -5,20 +5,17 @@ package com.d3.d3xmpp.activites;
 
 import org.jivesoftware.smackx.packet.VCard;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.constant.Constants;
-import com.d3.d3xmpp.constant.ImgConfig;
 import com.d3.d3xmpp.constant.MyApplication;
 import com.d3.d3xmpp.d3View.D3View;
 import com.d3.d3xmpp.dao.MsgDbHelper;
@@ -40,6 +37,7 @@ public class FriendActivity extends BaseActivity {
 	@D3View CircularImage headView;
 	private String username;
 	private User friend;
+	private FriendReceiver reciver;
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
@@ -48,42 +46,26 @@ public class FriendActivity extends BaseActivity {
 		initTitle();
 		username = getIntent().getStringExtra("username");
 		nameView.setText(username);
-//		ImgConfig.showHeadImg(username, headView);
+		// 接收到新消息的事件监听
+		reciver = new FriendReceiver();
+		registerReceiver(reciver,new IntentFilter("friendChange"));
 		
 		if (username.equals(Constants.USER_NAME)) {
 			operBtn.setVisibility(View.GONE);
 		}
-		
-		if (XmppConnection.getInstance().getFriendList().contains(new Friend(username))) {
+		isFriend();
+		initData();
+	}
+	
+	public void isFriend(){
+		if (XmppConnection.getInstance().getFriendBothList().contains(new Friend(username))) {
 			operBtn.setText("移出通讯录");
 		}
 		else {
 			operBtn.setText("添加到通讯录");
 		}
-
-//		Map<String, String> map = new HashMap<String, String>();
-//		map.put("userNameA", Constants.USER_NAME);
-//		map.put("userNameB", username);
-//		new LoadThread(this,Constants.IS_FRIEND,map) {
-//			
-//			@Override
-//			protected void refreshUI(String result) {
-//				try {
-//					JSONObject jsonObject = new JSONObject(result);
-//					if (jsonObject.getString("state").equals("0")) {
-//						operBtn.setText("移出通讯录");
-//					}
-//					else if (jsonObject.getString("state").equals("1")){
-//						operBtn.setText("添加到通讯录");
-//					}
-//					
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		};
-		initData();
 	}
+	
 	
 	public void	initData() {
 		new XmppLoadThread(this) {
@@ -126,7 +108,7 @@ public class FriendActivity extends BaseActivity {
 				XmppConnection.getInstance().addUser(username);
 				Tool.initToast(getApplicationContext(), "添加成功，等待通过验证");
 				MyApplication.getInstance().sendBroadcast(new Intent("friendChange"));
-				operBtn.setText("移出通讯录");
+				isFriend();
 			}
 			else if (operBtn.getText().equals("移出通讯录")){
 				XmppConnection.getInstance().removeUser(username);
@@ -143,5 +125,12 @@ public class FriendActivity extends BaseActivity {
 			break;
 		}
 		
+	}
+	
+	private class FriendReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			isFriend();
+		}
 	}
 }

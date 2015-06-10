@@ -3,8 +3,12 @@
  */
 package com.d3.d3xmpp.activites;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.jivesoftware.smack.XMPPException;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -27,6 +31,7 @@ import com.d3.d3xmpp.constant.MyApplication;
 import com.d3.d3xmpp.d3View.D3View;
 import com.d3.d3xmpp.dao.MsgDbHelper;
 import com.d3.d3xmpp.dao.NewMsgDbHelper;
+import com.d3.d3xmpp.model.ChatItem;
 import com.d3.d3xmpp.model.Room;
 import com.d3.d3xmpp.util.LoadThread;
 import com.d3.d3xmpp.util.Tool;
@@ -44,6 +49,8 @@ public class RoomMemActivity extends BaseActivity {
 	private SearchAdapter adapter;
 //	private List<RoomMem> roomMems;
 	private String roomName;
+	private List<String> members = new ArrayList<String>(); 
+	public static boolean isExit = false;
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
@@ -64,6 +71,7 @@ public class RoomMemActivity extends BaseActivity {
 		});
 		for (Room room : XmppConnection.getInstance().getMyRoom()) {
 			if (room.name.equals(roomName)) {
+				members = room.friendList;
 				for (String mem : room.friendList) {
 					adapter.add(mem);
 				}
@@ -73,30 +81,15 @@ public class RoomMemActivity extends BaseActivity {
 		
 //		initData();
 	}
-	
-//	public void initData() {
-//		Map<String, String> map = new HashMap<String, String>();
-//		map.put("roomName", getIntent().getStringExtra("roomName"));
-//		
-//		new LoadThread(this,Constants.GET_ROOM_MEMBER_BY_NAME,map) {
-//			
-//			@Override
-//			protected void refreshUI(String result) {
-//				try {
-//					JSONObject jsonObject = new JSONObject(result);
-//					if (jsonObject.getString("state").equals("0")) {
-//						roomMems = JsonUtil.jsonToObjectList(jsonObject.getString("items"), RoomMem.class);
-//						for (RoomMem roomMem : roomMems) {
-//							adapter.add(XmppConnection.getUsername(roomMem.jid));
-//						}
-//					}
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		};
-//		
-//	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (isExit) {
+			isExit = false;
+			finish();
+		}
+	}
 	
 	
 	public void onClick(View v){
@@ -107,6 +100,7 @@ public class RoomMemActivity extends BaseActivity {
 		case R.id.rightBtn:
 			Intent intent = new Intent(getApplicationContext(), ChoseActivity.class);
 			intent.putExtra("roomName", roomName);
+			intent.putStringArrayListExtra("members", (ArrayList<String>) members);
 			startActivity(intent);
 			break;
 		case R.id.exitBtn:
@@ -117,22 +111,38 @@ public class RoomMemActivity extends BaseActivity {
 			.setPositiveButton("确认", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					XmppConnection.getInstance().leaveMuc(roomName);
-//					Map<String, String> map = new HashMap<String, String>();
-//					map.put("roomName", roomName);
-//					map.put("jid", XmppConnection.getFullUsername(Constants.USER_NAME));
-//					new LoadThread(RoomMemActivity.this,Constants.LEAVE_ROOM,map) {
-//						@Override
-//						protected void refreshUI(String result) {
-//							XmppConnection.getInstance().leaveMuc(roomName);
-//							Tool.initToast(RoomMemActivity.this, "退出成功");
-//							NewMsgDbHelper.getInstance(MyApplication.getInstance()).delNewMsg(roomName);
-//							MsgDbHelper.getInstance(MyApplication.getInstance()).delChatMsg(roomName);
-//							MyApplication.getInstance().sendBroadcast(new Intent("ChatNewMsg"));
-//							MyApplication.getInstance().sendBroadcast(new Intent("LeaveRoom"));
-//							finish();
-//						}
-//					};
+					Map<String, String> map = new HashMap<String, String>();
+					map.put("jid", XmppConnection.getFullUsername(Constants.USER_NAME));
+					for (Room room : XmppConnection.getInstance().getMyRoom()) {
+						if (room.equals(new Room(roomName))) {
+							map.put("roomId", room.roomid);
+							map.put("roomName", roomName);
+							for (String mem : room.friendList) {
+								try {
+									XmppConnection.getInstance().sendMsg(mem,"[RoomChange,"+roomName+","+Constants.USER_NAME, ChatItem.CHAT);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+					
+					new LoadThread(RoomMemActivity.this,Constants.URL_EXIT_ROOM,map) {
+						
+						@Override
+						protected void refreshUI(String result) {
+							Tool.initToast(getApplicationContext(), "退出成功");
+							XmppConnection.getInstance().getMyRoom().remove(new Room(roomName));
+							NewMsgDbHelper.getInstance(getApplicationContext()).delNewMsg(roomName);
+							MsgDbHelper.getInstance(getApplicationContext()).delChatMsg(roomName);
+							MyApplication.getInstance().sendBroadcast(new Intent("ChatNewMsg"));
+							MyApplication.getInstance().sendBroadcast(new Intent("LeaveRoom"));
+							XmppConnection.leaveRooms.add(new Room(roomName));
+							XmppConnection.getInstance().reconnect();
+							ChatActivity.isExit = true;
+							finish();
+						}
+					};
 				}
 			})
 			.setNegativeButton("取消", null)

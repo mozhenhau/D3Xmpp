@@ -3,12 +3,11 @@
  */
 package com.d3.d3xmpp.activites;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,30 +21,28 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
+import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.constant.Constants;
-import com.d3.d3xmpp.constant.ImgConfig;
 import com.d3.d3xmpp.constant.MyApplication;
 import com.d3.d3xmpp.d3View.D3View;
-import com.d3.d3xmpp.model.User;
-import com.d3.d3xmpp.util.CircularImage;
-import com.d3.d3xmpp.util.FormatTools;
-import com.d3.d3xmpp.util.JsonUtil;
+import com.d3.d3xmpp.dao.MsgDbHelper;
+import com.d3.d3xmpp.dao.NewFriendDbHelper;
+import com.d3.d3xmpp.dao.NewMsgDbHelper;
+import com.d3.d3xmpp.util.FileUtil;
 import com.d3.d3xmpp.util.MyAndroidUtil;
 import com.d3.d3xmpp.util.Tool;
 import com.d3.d3xmpp.util.XmppLoadThread;
 import com.d3.d3xmpp.xmpp.XmppConnection;
-import com.d3.d3xmpp.R;
 
 /**
  * @author MZH
  *
  */
 public class LoginActivity extends BaseActivity implements OnCheckedChangeListener, TextWatcher {
-	@D3View(click="onClick") TextView registBtn,changePwdBtn;
+	@D3View(click="onClick") TextView registBtn,changePwdBtn,clearBtn;
 	@D3View(click="onClick") Button loginBtn;
 	@D3View CheckBox checkBox;
 	@D3View TextView nameText,pwdText;
-//	@D3View CircularImage headImg;
 	private String name,pwd;
 	private boolean isChecked = false;
 
@@ -65,20 +62,7 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 		
 		if (isChecked) {
 			nameText.setText(name);
-//			ImgConfig.showHeadImg(name, headImg);
-		} else {
-//			headImg.setImageBitmap(locationImage(R.drawable.default_icon));
-		}
-		
-
-		if (getIntent().getBooleanExtra("isRelogin", false)) {
-			Tool.initToast(getApplicationContext(), "此账号已在别处登录");
-		}
-		else {
-			if (name!=null && pwd!=null) {  //都不为空,自动登录
-				loginAccount(name, pwd);
-			}
-		}
+		} 
 	}
 	
 	public void onClick(View v) {
@@ -104,6 +88,26 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 //			startActivity(new Intent(LoginActivity.this, ForgetPwdActivity.class));
 //			break;
 			
+		case R.id.clearBtn:
+			new AlertDialog.Builder(this) 
+		 	.setTitle("提示")
+		 	.setMessage("确认清除痕迹？清除后不可恢复？")
+		 	.setPositiveButton("是", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					MsgDbHelper.getInstance(getApplicationContext()).clear();
+					NewFriendDbHelper.getInstance(getApplicationContext()).clear();
+					NewMsgDbHelper.getInstance(getApplicationContext()).clear();
+					FileUtil.RecursionDeleteFile(new File(Constants.SAVE_IMG_PATH));
+					FileUtil.RecursionDeleteFile(new File(Constants.SAVE_SOUND_PATH));
+				}
+			})
+		 	.setNegativeButton("否", null)
+		 	.show();
+			
+			
+			break;
+			
 		default:
 			break;
 		}
@@ -118,19 +122,6 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 				if (isSuccess) {
 					Constants.USER_NAME = name;
 					Constants.PWD = password;
-					//用户详情
-					Constants.loginUser = new User(XmppConnection.getInstance().getUserInfo(null));
-//					Map<String, String> map = new HashMap<String, String>();
-//					map.put("userName", Constants.USER_NAME);
-//					String result = XmppConnection.getInstance().requestService(Constants.GET_USERINFO_DETAIL,map);
-//					try {
-//						JSONObject jsonObject = new JSONObject(result);
-//						if (jsonObject.getString("state").equals("0")) {
-//							Constants.loginUser = JsonUtil.jsonToObject(jsonObject.getString("items"), User.class);
-//						}
-//					} catch (JSONException e) {
-//						e.printStackTrace();
-//					}
 				}
 				return isSuccess;
 			}
@@ -147,13 +138,8 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 						MyAndroidUtil.removeXml(Constants.LOGIN_ACCOUNT);
 						MyAndroidUtil.removeXml(Constants.LOGIN_PWD);
 					}
-					
-//					if (Constants.USER_HEAD != null) {
-//						MyAndroidUtil.editXmlByString(Constants.LOGIN_IMAGE,
-//						FormatTools.getInstance().bitmaptoString(Constants.USER_HEAD, 100));
-//					}
-					
 					Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 					finish();
 				} else {
@@ -162,7 +148,6 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 			}
 
 		};
-
 	}
 	
 	@Override
@@ -172,7 +157,26 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 				return false;
 			}
         }
-		return true;
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	protected void onResume() {
+		if (getIntent().getBooleanExtra("isRelogin", false)) {
+			Tool.initToast(getApplicationContext(), "此账号已在别处登录");
+		}
+		else if (Constants.USER_NAME != null && !Constants.USER_NAME.equals("")) {
+			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent);
+			finish();
+		}
+		else {
+			if (name!=null && pwd!=null) {  //都不为空,自动登录
+				loginAccount(name, pwd);
+			}
+		}
+		super.onResume();
 	}
 	
 	
@@ -190,15 +194,6 @@ public class LoginActivity extends BaseActivity implements OnCheckedChangeListen
 
 	@Override
 	public void afterTextChanged(Editable arg0) {
-//		if (arg0.toString().equals(MyApplication.sharedPreferences.getString(Constants.LOGIN_ACCOUNT, null))) {
-//			String head = MyApplication.sharedPreferences.getString(Constants.LOGIN_IMAGE, null);
-//			if (head!=null) {
-//				headImg.setImageBitmap(FormatTools.getInstance().byteToBitmap(head));
-//			}
-//		}else {
-//			headImg.setImageBitmap(locationImage(R.drawable.default_icon));
-//		}
-//		ImgConfig.showHeadImg(arg0.toString(), headImg);
 	}
 
 	@Override

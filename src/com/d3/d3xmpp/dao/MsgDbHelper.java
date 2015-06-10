@@ -60,7 +60,7 @@ public class MsgDbHelper {
 			String sql = "CREATE TABLE  IF NOT EXISTS " + DB_NAME
 						+ "( id INTEGER PRIMARY KEY AUTOINCREMENT,chatType INTEGER,chatName text,"+
 						"username text , head text ,msg text,sendDate text,inOrOut INTEGER," +
-						"whos text,url text,i_filed INTEGER,t_field text)";
+						"whos text,i_filed INTEGER,t_field text)";
 			db.execSQL(sql);
 		}
 
@@ -87,7 +87,6 @@ public class MsgDbHelper {
 		values.put("sendDate",msg.sendDate);
 		values.put("inOrOut", msg.inOrOut);
 		values.put("whos", Constants.USER_NAME);
-		values.put("url", msg.url);
 		db.insert(helper.DB_NAME, "id", values);
 	}
 
@@ -98,16 +97,13 @@ public class MsgDbHelper {
 	public List<ChatItem> getChatMsg(String chatName){
 		List<ChatItem> chatItems = new ArrayList<ChatItem>();
 		ChatItem msg;
-		String sql = "select a.chatType,a.chatName,a.username,a.head,a.msg,a.sendDate,a.inOrOut,a.url" +
+		String sql = "select a.chatType,a.chatName,a.username,a.head,a.msg,a.sendDate,a.inOrOut " +
 				" from(select * from "+helper.DB_NAME +
 				" where chatName = ? and whos = ? order by id desc LIMIT " +SHOW_MSG_COUNT+")a order by a.id";
 		Cursor cursor = db.rawQuery(sql, new String[]{chatName,Constants.USER_NAME});
 		while(cursor.moveToNext()){
 			msg = new ChatItem(cursor.getInt(0),cursor.getString(1),cursor.getString(2), cursor.getString(3), cursor.getString(4)
 					, cursor.getString(5), cursor.getInt(6));
-			if (cursor.getInt(0) == ChatItem.NOTI) {
-				msg.url = cursor.getString(7);
-			}
 			chatItems.add(msg);
 			msg = null;
 		}
@@ -123,16 +119,13 @@ public class MsgDbHelper {
 	public List<ChatItem> getChatMsgMore(int startIndex,String chatName){
 		List<ChatItem> chatItems = new ArrayList<ChatItem>();
 		ChatItem msg;
-		String sql ="select a.chatType,a.chatName,a.username,a.head,a.msg,a.sendDate,a.inOrOut,a.url" +
+		String sql ="select a.chatType,a.chatName,a.username,a.head,a.msg,a.sendDate,a.inOrOut " +
 				" from(select * from "+helper.DB_NAME +
 				" where chatName = ? and whos = ? order by id desc LIMIT " +MORE_MSG_COUNT+" offset "+startIndex+")a order by a.id";
 		Cursor cursor = db.rawQuery(sql, new String[]{chatName,Constants.USER_NAME});
 		while(cursor.moveToNext()){
 			msg = new ChatItem(cursor.getInt(0),cursor.getString(1),cursor.getString(2), cursor.getString(3), cursor.getString(4)
 					, cursor.getString(5), cursor.getInt(6));
-			if (cursor.getInt(0) == ChatItem.NOTI) {
-				msg.url = cursor.getString(7);
-			}
 			chatItems.add(msg);
 			msg = null;
 		}
@@ -187,5 +180,8 @@ public class MsgDbHelper {
 	public void delChatMsg(String msgId){
 		db.delete(helper.DB_NAME, "chatName=? and whos=?", new String[]{msgId,Constants.USER_NAME}); 
 	}
-	
+
+	public void clear(){
+		db.delete(helper.DB_NAME, "id>?", new String[]{"0"}); 
+	}
 }

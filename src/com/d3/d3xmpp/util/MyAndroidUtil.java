@@ -12,10 +12,13 @@ import android.content.SharedPreferences.Editor;
 
 import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.activites.MainActivity;
+import com.d3.d3xmpp.constant.Constants;
 import com.d3.d3xmpp.constant.MyApplication;
+import com.d3.d3xmpp.d3View.expression.ExpressionUtil;
+import com.d3.d3xmpp.dao.NewMsgDbHelper;
 
 public class MyAndroidUtil {
-
+	private static Notification myNoti = new Notification();
 	/**
 	 * @param context
 	 * @param title
@@ -80,10 +83,29 @@ public class MyAndroidUtil {
 		editor.commit();
 	}
 	
+	public static void clearNoti(){
+		myNoti.number = 0;
+		NotificationManager manger = (NotificationManager)MyApplication.getInstance()
+				.getSystemService(Service.NOTIFICATION_SERVICE);
+		manger.cancelAll();   
+	}
+	
 	public static void showNoti(String notiMsg){
 		//android推送
-		Notification myNoti = new Notification();
-		myNoti.tickerText = notiMsg;
+		if(notiMsg.contains(Constants.SAVE_IMG_PATH))
+			myNoti.tickerText = "[图片]";
+		else if(notiMsg.contains(Constants.SAVE_SOUND_PATH))
+			myNoti.tickerText = "[语音]";
+		else if(notiMsg.contains("[/g0"))
+			myNoti.tickerText = "[动画表情]";
+		else if(notiMsg.contains("[/f0"))  //适配表情
+			myNoti.tickerText = ExpressionUtil.getText(MyApplication.getInstance(), StringUtil.Unicode2GBK(notiMsg));
+		else if(notiMsg.contains("[/a0"))
+			myNoti.tickerText = "[位置]";
+		else{
+			myNoti.tickerText = notiMsg;
+		}
+		
 		Intent intent = new Intent();   //要跳去的界面
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.setClass(MyApplication.getInstance(), MainActivity.class);
@@ -94,8 +116,14 @@ public class MyAndroidUtil {
 		myNoti.icon = R.drawable.ic_launcher;
 		myNoti.flags = Notification.FLAG_SHOW_LIGHTS|Notification.FLAG_AUTO_CANCEL;  //闪光灯
 		myNoti.ledARGB= 0xff00ff00;           //绿色
+		myNoti.number = NewMsgDbHelper.getInstance(MyApplication.getInstance()).getMsgCount();
 		
-//		myNoti.defaults = Notification.DEFAULT_SOUND; // 响铃
+		if (MyApplication.sharedPreferences.getBoolean("isShake", true)) {
+			myNoti.defaults = Notification.DEFAULT_VIBRATE; // 震动
+		}
+		if (MyApplication.sharedPreferences.getBoolean("isSound", true)) {
+			myNoti.defaults = Notification.DEFAULT_SOUND; // 响铃
+		}
 		myNoti.setLatestEventInfo(MyApplication.getInstance(), MyApplication.getInstance().getString(R.string.app_name), myNoti.tickerText, appIntent);
 		mNotificationManager.notify(0, myNoti);
 	}

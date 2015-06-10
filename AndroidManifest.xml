@@ -26,7 +26,35 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />   
+	<uses-permission android:name="android.permission.BROADCAST_STICKY" />  
+	<uses-permission android:name="android.permission.WRITE_SETTINGS" /> 
+	<uses-permission android:name="android.permission.USE_CREDENTIALS" />  
+	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />  
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />  
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" /> 
+    <!-- 这个权限用于进行网络定位-->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+<!-- 这个权限用于访问GPS定位-->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+<!-- 用于访问wifi网络信息，wifi信息会用于进行网络定位-->
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+<!-- 获取运营商信息，用于支持提供运营商信息相关的接口-->
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+<!-- 这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
+<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
+<!-- 用于读取手机当前的状态-->
+<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+<!-- 写入扩展存储，向扩展卡写入数据，用于写入离线定位数据-->
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<!-- 访问网络，网络定位需要上网-->
+<uses-permission android:name="android.permission.INTERNET" />
+<!-- SD卡读取权限，用户写入离线定位数据-->
+<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"></uses-permission>
+<!--允许应用读取低级别的系统日志文件 -->
+<uses-permission android:name="android.permission.READ_LOGS"></uses-permission>
 
+    
     <application
         android:name="com.d3.d3xmpp.constant.MyApplication"
         android:allowBackup="true"
@@ -34,7 +62,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         
-        
+        <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"></service>
+    <meta-data  
+        android:name="com.baidu.lbsapi.API_KEY"  
+        android:value="iKG55x5rIvGvxritVUlOxyqV" />  
         <activity
             android:name="com.d3.d3xmpp.activites.LoginActivity"
             android:label="@string/app_name" >
@@ -62,7 +93,9 @@
         </activity>
          <activity
             android:name="com.d3.d3xmpp.activites.PicSrcPickerActivity"
-            android:screenOrientation="portrait" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog" >
         </activity>
          <activity
             android:name="com.d3.d3xmpp.activites.CropImageActivity"
@@ -101,15 +134,15 @@
             android:screenOrientation="portrait" >
         </activity>
          <activity
-            android:name="com.d3.d3xmpp.activites.ForgetPwdActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-         <activity
             android:name="com.d3.d3xmpp.activites.WebActivity"
             android:screenOrientation="portrait" >
         </activity>
          <activity
             android:name="com.d3.d3xmpp.activites.ShowPicActivitiy"
+            android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.d3.d3xmpp.activites.MapActivity"
             android:screenOrientation="portrait" >
         </activity>
     </application>

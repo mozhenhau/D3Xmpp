@@ -54,6 +54,8 @@ public class MsgAdapter extends ArrayAdapter<ChatItem> {
 					holder.msgView.setText("[动画表情]");
 			else if(item.msg.contains("[/f0"))  //适配表情
 				holder.msgView.setText(ExpressionUtil.getText(cxt, StringUtil.Unicode2GBK(item.msg)));
+			else if(item.msg.contains("[/a0"))
+				holder.msgView.setText("[位置]");
 			else{
 				holder.msgView.setText(item.msg);
 			}

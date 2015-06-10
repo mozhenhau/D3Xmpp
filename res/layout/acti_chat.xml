@@ -62,6 +62,8 @@
         android:layout_height="wrap_content"
         android:background="@color/white" 
         android:orientation="horizontal"
+        android:focusable="true" 
+		android:focusableInTouchMode="true" 
         android:padding="3dp">
         
          <ImageView
@@ -135,10 +137,10 @@
            android:drawableTop="@drawable/icon_take_pic"
            android:text="拍摄"
            android:padding="10dp"
-           android:layout_marginLeft="10dp"
-           android:layout_marginRight="10dp"
+		   android:layout_margin="5dp"
            android:textSize="15sp"
-           android:textColor="@color/white" />
+           android:background="@drawable/input_edittext_bg"
+           android:textColor="@color/grey" />
         
         
         <Button
@@ -149,10 +151,10 @@
            android:drawableTop="@drawable/icon_chose_pic"
            android:text="照片"
            android:padding="10dp"
-           android:layout_marginLeft="10dp"
-           android:layout_marginRight="10dp"
+		   android:layout_margin="5dp"
            android:textSize="15sp"
-           android:textColor="@color/white" />
+           android:background="@drawable/input_edittext_bg"
+           android:textColor="@color/grey" />
         
         <!--  <Button
            android:id="@+id/fileBtn"
@@ -173,10 +175,10 @@
            android:drawableTop="@drawable/icon_adr"
            android:text="位置"
            android:padding="10dp"
-           android:layout_marginLeft="10dp"
-           android:layout_marginRight="10dp"
+		   android:layout_margin="5dp"
            android:textSize="15sp"
-           android:textColor="@color/white" />
+           android:background="@drawable/input_edittext_bg"
+           android:textColor="@color/grey" />
     </LinearLayout>
     
 

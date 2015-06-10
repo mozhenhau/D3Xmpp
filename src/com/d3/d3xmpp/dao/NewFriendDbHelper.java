@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.d3.d3xmpp.constant.Constants;
+import com.d3.d3xmpp.constant.MyApplication;
 import com.d3.d3xmpp.util.DateUtil;
 
 public class NewFriendDbHelper {
@@ -47,7 +48,7 @@ public class NewFriendDbHelper {
 		public void onCreate(SQLiteDatabase db) {
 			String sql = "CREATE TABLE  IF NOT EXISTS " + DB_NAME
 						+ "( id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-						"username text ,sendDate text," +
+						"username text ,sendDate text,isDeal INTEGER," +
 						"whos text,i_filed INTEGER,t_field text)";
 			db.execSQL(sql);
 		}
@@ -76,9 +77,18 @@ public class NewFriendDbHelper {
 		}
 		else{
 			values.put("sendDate", DateUtil.now_MM_dd_HH_mm_ss());
+			values.put("isDeal", 0);
 			db.update(helper.DB_NAME, values, " username=? and whos=?", 
 					new String[]{username,Constants.USER_NAME});
 		}
+		NewMsgDbHelper.getInstance(MyApplication.getInstance()).saveNewMsg(""+0);
+	}
+	
+	public void delFriend(String username){
+		ContentValues values = new ContentValues();
+		values.put("isDeal", 1);
+		db.update(helper.DB_NAME, values, " username=? and whos=?", 
+				new String[]{username,Constants.USER_NAME});
 	}
 
 	/**
@@ -106,5 +116,27 @@ public class NewFriendDbHelper {
 		}
 		cursor.close();
 		return count;
+	}
+	
+	//某个人是否已处理
+	public boolean isDeal(String username){   
+		boolean isDeal = false ;
+		String sql ="select isDeal from "+helper.DB_NAME+" where username=? and whos=?";
+		Cursor cursor = db.rawQuery(sql, new String[]{username,Constants.USER_NAME});
+		while(cursor.moveToNext()){
+			if (cursor.getInt(0) == 0) {
+				isDeal = false;
+			}
+			else {
+				isDeal = true;
+			}
+		}
+		cursor.close();
+		return isDeal;
+	}
+	
+	
+	public void clear(){
+		db.delete(helper.DB_NAME, "id>?", new String[]{"0"}); 
 	}
 }

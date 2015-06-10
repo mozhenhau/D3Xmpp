@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -93,11 +92,12 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.d3.d3xmpp.activites.ChatActivity;
 import com.d3.d3xmpp.constant.Constants;
 import com.d3.d3xmpp.constant.MyApplication;
+import com.d3.d3xmpp.model.ChatItem;
 import com.d3.d3xmpp.model.Friend;
 import com.d3.d3xmpp.model.Room;
-import com.d3.d3xmpp.util.DES;
 import com.d3.d3xmpp.util.FormatTools;
 import com.d3.d3xmpp.util.PinyinComparator;
 import com.d3.d3xmpp.util.Tool;
@@ -105,18 +105,16 @@ import com.d3.d3xmpp.util.Tool;
 public class XmppConnection {
 
 	private static XMPPConnection connection = null;
-	public static String SERVER_NAME = "d3";
 	private static XmppConnection xmppConnection;
 	public Roster roster;
 	private static Chat newchat;
-	private List<Friend> friendList = new ArrayList<Friend>();
-	private List<Friend> friendListAll = new ArrayList<Friend>();
+	private static MultiUserChat mulChat;
+	private static List<Friend> friendList = new ArrayList<Friend>();
 	private XmppConnecionListener connectionListener;
 	private XmppMessageInterceptor xmppMessageInterceptor;
 	private XmppMessageListener messageListener;
-	
-	public static List<Friend> friendListTemp = new ArrayList<Friend>();
 	public static List<Room> myRooms = new ArrayList<Room>();
+	public static List<Room> leaveRooms = new ArrayList<Room>();
 
 	static {
 		try {
@@ -161,7 +159,7 @@ public class XmppConnection {
 				XMPPConnection.DEBUG_ENABLED = true;// 开启DEBUG模式
 				// 配置连接
 				ConnectionConfiguration config = new ConnectionConfiguration(Constants.SERVER_HOST,
-						Constants.SERVER_PORT, SERVER_NAME);
+						Constants.SERVER_PORT, Constants.SERVER_NAME);
 //				if (Build.VERSION.SDK_INT >= 14) {
 //					config.setKeystoreType("AndroidCAStore"); //$NON-NLS-1$  
 //					config.setTruststorePassword(null);
@@ -182,7 +180,6 @@ public class XmppConnection {
 				config.setSendPresence(true); // 状态设为离线，目的为了取离线消息
 				connection = new XMPPConnection(config);
 				connection.connect();// 连接到服务器
-
 				// 配置各种Provider，如果不配置，则会无法解析数据
 				configureConnection(ProviderManager.getInstance());
 				// 添加連接監聽
@@ -213,7 +210,7 @@ public class XmppConnection {
 	public void closeConnection() {
 		if (connection != null) {
 			connection.removeConnectionListener(connectionListener);
-//			MultiUserChat.removeInvitationListener(getConnection(), myInvitationListener);
+			ProviderManager.getInstance().removeIQProvider("muc", "MZH");
 			try {
 				connection.disconnect();
 			} catch (Exception e) {
@@ -230,6 +227,44 @@ public class XmppConnection {
 		Log.e("XmppConnection", "close connection");
 	}
 	
+	
+	public void reconnect(){
+		new Thread(){
+			@Override
+			public void run() {
+				try {
+					sleep(5*1000);
+					ChatActivity.isLeaving = true;
+					closeConnection();
+					login(Constants.USER_NAME, Constants.PWD);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				super.run();
+			}
+		}.start();
+	}
+	
+	
+	public void loadFriendAndJoinRoom(){
+		new Thread(){
+			public void run() {
+				try {
+					getFriends();
+					sleep(1*1000);
+					if (XmppConnection.getInstance().getMyRoom()!=null) {
+						for (Room room : XmppConnection.getInstance().getMyRoom()) {
+							XmppConnection.getInstance().joinMultiUserChat(Constants.USER_NAME,room.name, false);
+						}
+					}
+					ChatActivity.isLeaving = false;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			};
+		}.start();
+	}
+	
 	/**
 	 * 登录
 	 * 
@@ -243,7 +278,7 @@ public class XmppConnection {
 		try {
 			if (getConnection() == null)
 				return false;
-//			if (!getConnection().isAuthenticated()) {
+			if (!getConnection().isAuthenticated() && getConnection().isConnected()) {
 				getConnection().login(account, password);
 				// // 更改在綫狀態
 				Presence presence = new Presence(Presence.Type.available);
@@ -255,16 +290,24 @@ public class XmppConnection {
 //				friendListner = new FriendListner();
 //				roster.addRosterListener(friendListner);
 				//监听邀请加入聊天室请求   
-//				myInvitationListener = new MyInvitationListener();
-//	            MultiUserChat.addInvitationListener(getConnection(),myInvitationListener); 
+//	            MultiUserChat.addInvitationListener(getConnection(), new InvitationListener() {
+//					
+//					@Override
+//					public void invitationReceived(Connection arg0, String arg1, String arg2,
+//							String arg3, String arg4, Message arg5) {
+//						// TODO Auto-generated method stub
+//						
+//					}
+//				});
+				loadFriendAndJoinRoom();
 				return true;
-//			}
+			}
 
 		} catch (XMPPException e) {
 			e.printStackTrace();
 			return false;
 		}
-//		return false;
+		return false;
 	}
 	
 	/**
@@ -317,50 +360,83 @@ public class XmppConnection {
 		}
     }
 	
-	public void setRecevier(String username){
-		// 创建回话
-		ChatManager cm = XmppConnection.getInstance().getConnection().getChatManager();
-		// 发送消息给pc服务器的好友（获取自己的服务器，和好友）
-		newchat = cm.createChat(getFullUsername(username), null);
+	public void setRecevier(String chatName,int chatType){
+		if (getConnection() == null)
+			return;
+		
+		if (chatType == ChatItem.CHAT) {
+			// 创建回话
+			ChatManager cm = XmppConnection.getInstance().getConnection().getChatManager();
+			// 发送消息给pc服务器的好友（获取自己的服务器，和好友）
+			newchat = cm.createChat(getFullUsername(chatName), null);
+		}
+		else if (chatType == ChatItem.GROUP_CHAT) {
+			mulChat = new MultiUserChat(getConnection(), getFullRoomname(chatName));
+		}
 	}
 	
 	//发送文本消息
 	@SuppressLint("NewApi")
-	public void sendMsg(String msg) {
+	public void sendMsg(String chatName,String msg,int chatType) throws Exception{
+		if (getConnection() == null){
+			throw new Exception("XmppException");
+		}
+		
 		if (msg.isEmpty()) {
 			Tool.initToast(MyApplication.getInstance(), "随便写点什么呗");
 		}
-		else if (!getFriendList().contains(new Friend(getUsername(newchat.getParticipant())))) {
-			Tool.initToast(MyApplication.getInstance(), "相互不是好友，不能发呐");
-		}
 		else {
-			try {
+			if (chatType == ChatItem.CHAT) {
+				ChatManager cm = XmppConnection.getInstance().getConnection().getChatManager();
+				// 发送消息给pc服务器的好友（获取自己的服务器，和好友）
+				Chat newchat = cm.createChat(getFullUsername(chatName), null);
 				newchat.sendMessage(msg);
 			}
-			catch (Exception e) {
-				e.printStackTrace();
-				Tool.initToast(MyApplication.getInstance(), "网络不稳定...请稍后重试");
+			else if (chatType == ChatItem.GROUP_CHAT) {
+				MultiUserChat mulChat = new MultiUserChat(getConnection(), getFullRoomname(chatName));
+				mulChat.sendMessage(msg);
 			}
 		}
 	}
-	//发送消息，附带参数
-	public void sendMsgWithParms(String msg,String[] parms,Object[] datas) {
-		try {
-			if (!getFriendList().contains(new Friend(getUsername(newchat.getParticipant())))) {
-				Tool.initToast(MyApplication.getInstance(), "相互不是好友，不能发呐");
+	
+	//发送文本消息
+	@SuppressLint("NewApi")
+	public void sendMsg(String msg,int chatType) throws Exception{
+		if (getConnection() == null){
+			throw new Exception("XmppException");
+		}
+		
+		if (msg.isEmpty()) {
+			Tool.initToast(MyApplication.getInstance(), "随便写点什么呗");
+		}
+		else {
+			if (chatType == ChatItem.CHAT) {
+				newchat.sendMessage(msg);
 			}
-			else{
-				org.jivesoftware.smack.packet.Message message = new org.jivesoftware.smack.packet.Message();
-				for (int i = 0; i < datas.length; i++) {
-					message.setProperty(parms[i], datas[i]);
-				}
-				message.setBody(msg);
-				newchat.sendMessage(message);
+			else if (chatType == ChatItem.GROUP_CHAT) {
+				mulChat.sendMessage(msg);
 			}
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-			Tool.initToast(MyApplication.getInstance(), "网络不稳定...请稍后重试");
+	}
+	
+	
+	//发送消息，附带参数
+	public void sendMsgWithParms(String msg,String[] parms,Object[] datas,int chatType) throws Exception{
+		if (getConnection() == null){
+			throw new Exception("XmppException");
+		}
+		
+		org.jivesoftware.smack.packet.Message message = new org.jivesoftware.smack.packet.Message();
+		for (int i = 0; i < datas.length; i++) {
+			message.setProperty(parms[i], datas[i]);
+		}
+		message.setBody(msg);
+		
+		if (chatType == ChatItem.CHAT) {
+			newchat.sendMessage(message);
+		}
+		else if (chatType == ChatItem.GROUP_CHAT) {
+			mulChat.sendMessage(msg+":::"+datas[0]);
 		}
 	}
 	
@@ -374,11 +450,11 @@ public class XmppConnection {
 		List<String> userList = new ArrayList<String>();
 		try{
 			UserSearchManager search = new UserSearchManager(getConnection());
-			Form searchForm = search.getSearchForm("search."+SERVER_NAME);
+			Form searchForm = search.getSearchForm("search."+Constants.SERVER_NAME);
 			Form answerForm = searchForm.createAnswerForm();
 			answerForm.setAnswer("Username", true);
 			answerForm.setAnswer("search", key);
-			ReportedData data = search.getSearchResults(answerForm,"search."+SERVER_NAME);
+			ReportedData data = search.getSearchResults(answerForm,"search."+Constants.SERVER_NAME);
 			
 			Iterator<Row> it = data.getRows();
 			Row row=null;
@@ -507,7 +583,7 @@ public class XmppConnection {
 				vcard.load(getConnection());
 			}
 			else {
-				vcard.load(getConnection(), user + "@" + SERVER_NAME);
+				vcard.load(getConnection(), user + "@" + Constants.SERVER_NAME);
 			}
 			if (vcard != null)
 				return vcard;
@@ -536,7 +612,7 @@ public class XmppConnection {
 				vcard.load(getConnection());
 			}
 			else {
-				vcard.load(getConnection(), user + "@" + SERVER_NAME);
+				vcard.load(getConnection(), user + "@" + Constants.SERVER_NAME);
 			}
 			if (vcard == null || vcard.getAvatar() == null)
 				return null;
@@ -636,9 +712,10 @@ public class XmppConnection {
 			submitForm.setAnswer("x-muc#roomconfig_registration", true);
 			// 发送已完成的表单（有默认值）到服务器来配置聊天室
 			muc.sendConfigurationForm(submitForm);
-			//TODO
 //			muc.addMessageListener(new TaxiMultiListener());
 		} catch (XMPPException e) {
+			Tool.initToast(MyApplication.getInstance(), "网络不给力,请重试");
+			Log.e("you wenti", "网络不给力,请重试" + e.getMessage());
 			e.printStackTrace();
 			return null;
 		}
@@ -647,20 +724,20 @@ public class XmppConnection {
 	}
 
 
-	public List<Friend> getAllFriends() {
-		List<Friend> list = new ArrayList<Friend>();
-		if (roster == null) {
-			roster = XmppConnection.getInstance().getConnection().getRoster();
-		}
-		
-		Collection<RosterEntry> entries = roster.getEntries();
-		
-		for(RosterEntry entry : entries){
-			list.add(new Friend(XmppConnection.getUsername(entry.getUser()),entry.getType()));
-		}
-		return list;
-	}
-	
+//	public List<Friend> getAllFriends() {
+//		List<Friend> list = new ArrayList<Friend>();
+//		if (roster == null) {
+//			roster = XmppConnection.getInstance().getConnection().getRoster();
+//		}
+//		
+//		Collection<RosterEntry> entries = roster.getEntries();
+//		
+//		for(RosterEntry entry : entries){
+//			list.add(new Friend(XmppConnection.getUsername(entry.getUser()),entry.getType()));
+//		}
+//		return list;
+//	}
+//	
 	
 	/**
 	 * 网络获取xmpp好友
@@ -669,30 +746,16 @@ public class XmppConnection {
 		friendList.clear();
 		if (roster == null) {
 			roster = XmppConnection.getInstance().getConnection().getRoster();
-//			friendListner = new FriendListner();
-//			roster.addRosterListener(friendListner);
 		}
-		friendListAll.clear();
-//		roster = XmppConnection.getInstance().getConnection().getRoster();
 		Collection<RosterEntry> entries = roster.getEntries();
 		List<Friend> friendsTemp = new ArrayList<Friend>();
 		
 		for(RosterEntry entry : entries){
-			if (entry.getType() == ItemType.both) { //来的是from|| entry.getType() == ItemType.none || entry.getType() == ItemType.to
+//			if (entry.getType() == ItemType.both) { //来的是from|| entry.getType() == ItemType.none || entry.getType() == ItemType.to
 				friendsTemp.add(new Friend(XmppConnection.getUsername(entry.getUser()),entry.getType()));
-			}
-			friendListAll.add(new Friend(XmppConnection.getUsername(entry.getUser()),entry.getType()));
+//			}
+//			friendListAll.add(new Friend(XmppConnection.getUsername(entry.getUser()),entry.getType()));
 		} 
-		for (Friend friend : friendListTemp) {
-			if (friend.type == ItemType.remove) {
-				friendsTemp.remove(friend);
-			}
-			else {
-				if (!friendsTemp.contains(friend)) {
-					friendsTemp.add(friend);
-				}
-			}
-		}
 		
 		//还要按字母排序
 		Friend[] usersArray = new Friend[friendsTemp.size()];
@@ -708,48 +771,39 @@ public class XmppConnection {
 		return friendList;
 	}
 	
-	public List<Friend> getFriendListAll() {
-		return friendListAll;
+	public List<Friend> getFriendBothList(){
+		List<Friend> friends= new ArrayList<Friend>();
+		for (Friend friend : friendList) {
+			if (friend.type == ItemType.both) {
+				friends.add(friend);
+			}
+		}
+		return friends;
 	}
+	
+	public void changeFriend(Friend friend,ItemType type){
+		getFriendList().get(getFriendList().indexOf(friend)).type = type;
+	}
+	
+//	public List<Friend> getFriendListAll() {
+//		return friendListAll;
+//	}
 	
 	public List<Room> getMyRoom() {
 		return myRooms;
 	}
-	
-//	public void getMyRooms(){
-//		new Thread(){
-//			public void run() {
-//				Map<String, String> map = new HashMap<String, String>();
-//				map.put("jid", Constants.USER_NAME+"@"+SERVER_NAME);
-//				try {
-//					JSONObject jsonObject = new JSONObject(requestService(Constants.GET_MYROOM, map));
-//					if (jsonObject.getString("state").equals("0")) {
-//						List<Room> rooms = JsonUtil.jsonToObjectList(jsonObject.getString("items"), Room.class);
-//						
-//						//加入聊天室
-//						for (Room room : rooms) {
-//							XmppConnection.getInstance().joinMultiUserChat(Constants.USER_NAME,room.name, null);
-//						}
-//					}
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//				};
-//		}.start();
-//	}
-	
 	
 	/**
 	 * 加入会议室
 	 * 
 	 * @param user
 	 *            昵称
-	 * @param password
-	 *            会议室密码
+	 * @param restart
+	 *            是否需要重启，asmack的错误。新邀请的时候为true
 	 * @param roomsName
 	 *            会议室名
 	 */
-	public MultiUserChat joinMultiUserChat(String user, String roomsName, String password) {
+	public MultiUserChat joinMultiUserChat(String user, String roomsName, boolean restart) {
 		if (getConnection() == null)
 			return null;
 		try {
@@ -759,7 +813,7 @@ public class XmppConnection {
 					+ getConnection().getServiceName());
 			// 聊天室服务将会决定要接受的历史记录数量
 			DiscussionHistory history = new DiscussionHistory();
-			history.setMaxChars(10);
+			history.setMaxChars(0);
 			history.setSince(new Date());
 			// 用户加入聊天室
 			muc.join(user, null, history, SmackConfiguration.getPacketReplyTimeout());
@@ -768,11 +822,16 @@ public class XmppConnection {
 			Log.e("muc", "会议室【" + roomsName + "】加入成功........");
 
 			return muc;
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			if(Constants.IS_DEBUG)
 			Log.e("muc", "会议室【" + roomsName + "】加入失败........");
 			return null;
+		}
+		finally{
+			if (restart) {
+				reconnect();
+			}
 		}
 	}
 	
@@ -799,7 +858,7 @@ public class XmppConnection {
 	 * @return
 	 */
 	public static String getFullUsername(String username){
-		return username + "@" + SERVER_NAME;
+		return username + "@" + Constants.SERVER_NAME;
 	}
 	
 	/**
@@ -825,7 +884,7 @@ public class XmppConnection {
 	 * @return
 	 */
 	public static String getFullRoomname(String roomName){
-		return roomName + "@conference."+ SERVER_NAME;
+		return roomName + "@conference."+ Constants.SERVER_NAME;
 	}
 	
 	/**
@@ -952,9 +1011,6 @@ public class XmppConnection {
 
 			HttpPost request = new HttpPost(url);
 			List<NameValuePair> paramList = new ArrayList<NameValuePair>();
-			long now = Calendar.getInstance().getTimeInMillis();
-			paramList.add(new BasicNameValuePair("timestamp", String.valueOf(now)));
-			paramList.add(new BasicNameValuePair("sign", DES.encryptDES(String.valueOf(now))));
 			
 //			if (Constants.USER_NAME!="" && !param.containsKey("userName")) {
 //				param.put("userName", Constants.USER_NAME);
@@ -1027,6 +1083,7 @@ public class XmppConnection {
 		public IQ parseIQ(XmlPullParser parser) throws Exception {
 			int eventType = parser.getEventType();
 			myRooms.clear();
+			leaveRooms.clear();
 //			if (!isFirst) {
 //				XmppConnection.getInstance().closeConnection();
 //			}

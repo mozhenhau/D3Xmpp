@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.d3.d3xmpp.constant.MyApplication;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -64,6 +66,8 @@ public class FileUtil {
 			return false;
 		byte[] data = Base64.decode(fileString, Base64.DEFAULT);
         saveFileByBytes(data, filePath);
+//        MyApplication.getInstance().sendBroadcast(
+//        		new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,Uri.parse("file://"+filePath)));
         return true;
     }
 	
@@ -211,7 +215,24 @@ public class FileUtil {
 		}
 	}
 	
-	
+	//递归删除文件夹及文件
+	 public static void RecursionDeleteFile(File file){
+        if(file.isFile()){
+            file.delete();
+            return;
+        }
+        if(file.isDirectory()){
+            File[] childFile = file.listFiles();
+            if(childFile == null || childFile.length == 0){
+                file.delete();
+                return;
+            }
+            for(File f : childFile){
+                RecursionDeleteFile(f);
+            }
+            file.delete();
+        }
+	    }
 	
 	/**
 	 * 根据路径和名称都可以

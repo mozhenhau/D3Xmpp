@@ -128,6 +128,18 @@ public class Util {
 		Matcher m = p.matcher(mobiles);
 		return m.matches();
 	}
+	
+	/**
+	 * 判断邮箱的正确性
+	 * 
+	 * @param mobiles
+	 * @return
+	 */
+	public boolean isEmail(String email) {
+		Pattern p = Pattern.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
+		Matcher m = p.matcher(email);
+		return m.matches();
+	}
 
 	/**
 	 * 不能全是相同的数字或者字母

@@ -5,6 +5,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
 import android.content.Intent;
+import android.telephony.SmsMessage.MessageClass;
 import android.util.Log;
 
 import com.d3.d3xmpp.constant.Constants;
@@ -44,13 +45,24 @@ public class XmppMessageInterceptor implements PacketInterceptor {
 				else
 					msgBody = Constants.SAVE_IMG_PATH + "/" + nowMessage.getBody();
 			}
+			else if (nowMessage.getType() == Message.Type.groupchat & nowMessage.getBody().contains(":::")) { //被迫的
+				String[] msgAndData = nowMessage.getBody().split(":::");
+				if(FileUtil.getType(msgAndData[0]) == FileUtil.SOUND)
+					msgBody = Constants.SAVE_SOUND_PATH + "/" + msgAndData[0];
+				else
+					msgBody = Constants.SAVE_IMG_PATH + "/" + msgAndData[0];
+			}
 			else
 				msgBody = nowMessage.getBody();
 			
-			
-			ChatItem msg = new ChatItem(chatType,chatName,userName, "", msgBody, DateUtil.now_MM_dd_HH_mm_ss(), 1);
-			MsgDbHelper.getInstance(MyApplication.getInstance()).saveChatMsg(msg);
-			MyApplication.getInstance().sendBroadcast(new Intent("ChatNewMsg"));
+			if (nowMessage.getBody().contains("[RoomChange")) {
+				System.out.println("房间要发生改变了");
+			}
+			else {
+				ChatItem msg = new ChatItem(chatType,chatName,userName, "", msgBody, DateUtil.now_MM_dd_HH_mm_ss(), 1);
+				MsgDbHelper.getInstance(MyApplication.getInstance()).saveChatMsg(msg);
+				MyApplication.getInstance().sendBroadcast(new Intent("ChatNewMsg"));
+			}
 		}
 	}
 }

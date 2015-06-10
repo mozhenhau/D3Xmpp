@@ -21,7 +21,11 @@ public class Tool {
 
 	// Toast
 	public static void initToast(Context c, String title) {
-		Toast.makeText(c, title, Toast.LENGTH_SHORT).show();
+		try {
+			Toast.makeText(c, title, Toast.LENGTH_LONG).show();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	

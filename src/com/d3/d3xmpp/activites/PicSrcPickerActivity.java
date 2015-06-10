@@ -9,6 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,7 +27,7 @@ import com.d3.d3xmpp.R;
 
 public class PicSrcPickerActivity extends Activity {
 	
-	RelativeLayout fromGallery,fromCamera;
+	RelativeLayout fromGallery,fromCamera,picView;
 	public static String img_path;  //拍照的话保存路径
 	public String path;     //最终获得的图片路径
 	public String img_Name;
@@ -37,7 +38,7 @@ public class PicSrcPickerActivity extends Activity {
 	public static final int CHOSE_PIC = 2;
 	public static final int CROP = 3;
 	
-	public static float WIDTH_PROPOR = 1.0f;   //截图的宽高比例
+	public static float WIDTH_PROPOR = 1.0f;
 	private int type = 0;
 
 	@Override
@@ -45,6 +46,7 @@ public class PicSrcPickerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_pic_picker);
+		picView = (RelativeLayout)findViewById(R.id.picView);
         WIDTH_PROPOR = getIntent().getFloatExtra("width", 1.0f);
         
         
@@ -52,7 +54,8 @@ public class PicSrcPickerActivity extends Activity {
 		{
 			path = savedInstanceState.getString("imgPath");
 			File mFile = new File(path);
-			if (mFile != null && mFile.exists()) {
+			System.out.println("拍摄进来了");
+			if (mFile.exists()) {
 				Intent picIntent = new Intent();
 				picIntent.putExtra("imgName", savedInstanceState.getString("imgName"));
 				picIntent.putExtra("base64String", ImageUtil.getBase64StringFromFile(path));
@@ -69,7 +72,7 @@ public class PicSrcPickerActivity extends Activity {
 			if (!filePath.exists()) {
 				filePath.mkdirs();
 			}
-			img_Name = "tmp_pic_"+ System.currentTimeMillis()+".jpg";
+			img_Name = "t"+ String.valueOf(System.currentTimeMillis()).substring(5)+".jpg";
 			img_path = filePath + "/"+ img_Name;
 			fromGallery = (RelativeLayout) findViewById(R.id.from_gallery);
 			fromCamera = (RelativeLayout) findViewById(R.id.from_camera);
@@ -91,9 +94,11 @@ public class PicSrcPickerActivity extends Activity {
 			type = getIntent().getIntExtra("type", 0);
 			if (type == TAKE_PIC) {
 				goTakePic();
+				picView.setVisibility(View.GONE);
 			}
 			else if (type == CHOSE_PIC) {
 				goChosePic();
+				picView.setVisibility(View.GONE);
 			}
         }
 	}
@@ -161,7 +166,7 @@ public class PicSrcPickerActivity extends Activity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString("imgName", img_Name);
-		outState.putString("imgPath", img_path);
+		outState.putString("imgPath", path);
 	}
 	
 	

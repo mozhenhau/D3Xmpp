@@ -1,3 +1,4 @@
+
 package com.d3.d3xmpp.d3View;
 
  
@@ -70,7 +71,7 @@ public class RecordButton extends Button  {
 	private ObtainDecibelThread thread;
 	private Handler volumeHandler;
 	private static final int MIN_INTERVAL_TIME = 1*1000;// 2s 最短
-	public final static int MAX_TIME = 21*1000;// 20秒，最长
+	public final static int MAX_TIME = 60*1000 + 500;// 20秒，最长
 	private final String  SAVE_PATH = Constants.SAVE_SOUND_PATH;
 	
 	private float y ; 
@@ -249,7 +250,7 @@ public class RecordButton extends Button  {
 		@Override
 		public void handleMessage(Message msg) {
 			if(msg.what == -1)
-				duraView.setText("  "+(System.currentTimeMillis() - startTime)/1000+ "\"  最长20\"");
+				duraView.setText("  "+(System.currentTimeMillis() - startTime)/1000+ "\"  最长60\"");
 			else
 				view.setImageResource(res[msg.what]);
 		}

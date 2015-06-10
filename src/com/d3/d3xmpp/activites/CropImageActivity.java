@@ -52,15 +52,11 @@ public class CropImageActivity extends Activity implements OnClickListener {
 
 			switch (msg.what) {
 			case SHOW_PROGRESS:
-				if (mProgressBar!=null) {
-					mProgressBar.setVisibility(View.VISIBLE);
-				}
+				mProgressBar.setVisibility(View.VISIBLE);
 				break;
 			case REMOVE_PROGRESS:
-				if (mProgressBar!=null) {
-					mHandler.removeMessages(SHOW_PROGRESS);
-					mProgressBar.setVisibility(View.INVISIBLE);
-				}
+				mHandler.removeMessages(SHOW_PROGRESS);
+				mProgressBar.setVisibility(View.INVISIBLE);
 				break;
 			}
 
@@ -113,6 +109,7 @@ public class CropImageActivity extends Activity implements OnClickListener {
 		addProgressbar();
 		
 		if (isAutoSend) {
+			Tool.initToast(CropImageActivity.this, "图像处理中,请稍候...");
 			String path = mCrop.saveToLocal(mBitmap, img_path);
 			Intent intent = new Intent();
 			intent.putExtra("path", path);
@@ -198,7 +195,7 @@ public class CropImageActivity extends Activity implements OnClickListener {
 			}
 			BitmapFactory.Options newOpts = new BitmapFactory.Options();
 			// 缩放的比例，缩放是很难按准备的比例进行缩放的，目前我只发现只能通过inSampleSize来进行缩放，其值表明缩放的倍数，SDK中建议其值是2的指数值
-			newOpts.inSampleSize = (int) ratio + 1;
+			newOpts.inSampleSize = (int) ratio + 2;
 			// inJustDecodeBounds设为false表示把图片读进内存中
 			newOpts.inJustDecodeBounds = false;
 			// 设置大小，这个一般是不准确的，是以inSampleSize的为准，但是如果不设置却不能缩放

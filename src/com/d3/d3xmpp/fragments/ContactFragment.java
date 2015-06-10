@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.activites.ChatActivity;
 import com.d3.d3xmpp.activites.MyRoomActivity;
 import com.d3.d3xmpp.activites.NewFriendActivity;
@@ -32,18 +33,17 @@ import com.d3.d3xmpp.d3View.MyListView;
 import com.d3.d3xmpp.d3View.MyListView.OnRefreshListener;
 import com.d3.d3xmpp.model.Friend;
 import com.d3.d3xmpp.util.MySideBar;
+import com.d3.d3xmpp.util.MySideBar.OnTouchingLetterChangedListener;
 import com.d3.d3xmpp.util.PinyinUtils;
 import com.d3.d3xmpp.util.XmppLoadThread;
-import com.d3.d3xmpp.util.MySideBar.OnTouchingLetterChangedListener;
 import com.d3.d3xmpp.xmpp.XmppConnection;
-import com.d3.d3xmpp.R;
 
 /**
  * @author MZH
  *
  */
 public class ContactFragment extends D3Fragment implements OnTouchingLetterChangedListener{
-	@D3View EditText searchText;
+	@D3View public EditText searchText;
 	@D3View TextView newCountView;
 	@D3View MyListView listView;
 	@D3View MySideBar sideBar;
@@ -69,11 +69,17 @@ public class ContactFragment extends D3Fragment implements OnTouchingLetterChang
 		initData();
 	}
 	
+	@Override
+	public void onResume() {
+		searchText.clearFocus();
+		super.onResume();
+	}
+	
 	public void initData() {
 		adapter.clear();
 		adapter.add(new Friend("ÐÂµÄÅóÓÑ"));
 		adapter.add(new Friend("ÈºÁÄ"));
-		adapter.addAll(XmppConnection.getInstance().getFriends());
+		adapter.addAll(XmppConnection.getInstance().getFriendBothList());
 	}
 	
 	
@@ -93,7 +99,7 @@ public class ContactFragment extends D3Fragment implements OnTouchingLetterChang
 				}
 				else {
 					intent.setClass(getActivity(), ChatActivity.class);
-					intent.putExtra("chatName", XmppConnection.getInstance().getFriendList().get(position-3).username);
+					intent.putExtra("chatName", XmppConnection.getInstance().getFriendBothList().get(position-3).username);
 				}
 				getActivity().startActivity(intent);
 			}
@@ -159,7 +165,7 @@ public class ContactFragment extends D3Fragment implements OnTouchingLetterChang
 			
 			@Override
 			protected Object load() {
-				return XmppConnection.getInstance().getFriends();
+				return XmppConnection.getInstance().getFriendBothList();
 			}
 		};
 	}
@@ -171,8 +177,8 @@ public class ContactFragment extends D3Fragment implements OnTouchingLetterChang
 	public int alphaIndexer(String s) {
 		int position = 0;
 		String alpha;
-		for (int i = 0; i < XmppConnection.getInstance().getFriendList().size(); i++) {
-			alpha = PinyinUtils.getPingYin(XmppConnection.getInstance().getFriendList().get(i).username).toUpperCase();
+		for (int i = 0; i < XmppConnection.getInstance().getFriendBothList().size(); i++) {
+			alpha = PinyinUtils.getPingYin(XmppConnection.getInstance().getFriendBothList().get(i).username).toUpperCase();
 			if (alpha.startsWith(s)) {
 				position = i;
 				break;

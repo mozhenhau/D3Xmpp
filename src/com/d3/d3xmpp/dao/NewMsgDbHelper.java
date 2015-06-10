@@ -108,4 +108,8 @@ public class NewMsgDbHelper {             //新消息条数
 		cursor.close();
 		return count;
 	}
+
+	public void clear(){
+		db.delete(helper.DB_NAME, "id>?", new String[]{"0"}); 
+	}
 }

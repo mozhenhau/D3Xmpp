@@ -6,12 +6,15 @@ package com.d3.d3xmpp.activites;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,6 +30,8 @@ import com.d3.d3xmpp.dao.NewMsgDbHelper;
  *
  */
 public class NewFriendActivity extends BaseActivity {
+	@D3View(click="onClick") TextView rightBtn;
+	@D3View(click="onClick") ImageView leftBtn;
 	@D3View TextView titleView;
 	@D3View ListView listView;
 	private List<String> friends = new ArrayList<String>();
@@ -36,7 +41,6 @@ public class NewFriendActivity extends BaseActivity {
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.acti_new_friend);
-		initTitle();
 		adapter = new SearchAdapter(this);
 		adapter.isNewFriend = true;
 		listView.setAdapter(adapter);
@@ -64,7 +68,29 @@ public class NewFriendActivity extends BaseActivity {
 	
 	
 	public void onClick(View v){
+		switch (v.getId()) {
+		case R.id.leftBtn:
+			finish();
+			break;
 		
+		case R.id.rightBtn:
+			new AlertDialog.Builder(this) 
+		 	.setTitle("提示")
+		 	.setMessage("确认清空信息?清空后不可恢复？")
+		 	.setPositiveButton("是", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					NewFriendDbHelper.getInstance(getApplicationContext()).clear();
+					adapter.clear();
+					adapter.notifyDataSetChanged();
+				}
+			})
+		 	.setNegativeButton("否", null)
+		 	.show();
+			
+			break;
+		}
 	}
 	
 

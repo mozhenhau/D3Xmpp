@@ -53,62 +53,23 @@ public class MyRoomActivity extends BaseActivity {
 		});
 		if (XmppConnection.getInstance().getMyRoom()!=null) {
 			adapter.addAll(XmppConnection.getInstance().getMyRoom());
-//			for (Room room : XmppConnection.getInstance().getMyRoom()) {
-//				XmppConnection.getInstance().joinMultiUserChat(Constants.USER_NAME,room.name, null);
-//			}
 		}
-		
-//		Map<String, String> map = new HashMap<String, String>();
-//		map.put("jid", Constants.USER_NAME+"@"+Constants.SERVER_HOST);
-//		new LoadThread(MyRoomActivity.this,Constants.GET_MYROOM,map) {
-//			@Override
-//			protected void refreshUI(String result) {
-//				try {
-//					JSONObject jsonObject = new JSONObject(result);
-//					if (jsonObject.getString("state").equals("0")) {
-//						rooms = JsonUtil.jsonToObjectList(jsonObject.getString("items"), Room.class);
-//						adapter.addAll(rooms);
-//						handler.sendEmptyMessage(0);
-//					}
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		};
 		
 		mUpMessageReceiver = new UpMessageReceiver();
 		registerReceiver(mUpMessageReceiver, new IntentFilter("LeaveRoom"));
-//		new Thread(){
-//			public void run() {
-//				
-//		}.start();
-//		
-//		
-//		if (XmppConnection.getInstance().getMyRoomList().size()<0) {
-//			XmppConnection.getInstance().getMyRooms();
-//		}
-//		else {
-//			adapter.addAll(XmppConnection.getInstance().getMyRoomList());
-//		}
 	}
 	
-
-//	private Handler handler = new Handler(){
-//		public void handleMessage(android.os.Message msg) {
-//			if (rooms!=null) {
-//				//加入聊天室
-//				for (Room room : rooms) {
-//					XmppConnection.getInstance().joinMultiUserChat(Constants.USER_NAME,room.name, null);
-//				}
-//			}
-//		}
-//	};
 	
 	private class UpMessageReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// 收到廣播更新我们的界面
-			finish();
+//			finish();
+			if (XmppConnection.getInstance().getMyRoom()!=null) {
+				adapter.clear();
+				adapter.addAll(XmppConnection.getInstance().getMyRoom());
+				adapter.notifyDataSetChanged();
+			}
 		}
 	}
 }

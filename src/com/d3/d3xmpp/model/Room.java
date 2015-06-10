@@ -19,4 +19,19 @@ public class Room implements Serializable{
 		super();
 	}
 
+	
+	public Room(String name){
+		this.name = name;
+	}
+	
+	@Override
+	 public boolean equals(Object obj) {
+	  boolean isEqual = false;
+	  if (obj instanceof Room) {
+		  Room t = (Room) obj;
+		  isEqual = this.name.equals(t.name);
+		  return isEqual;
+	  }
+	  return super.equals(obj);
+	 }
 }

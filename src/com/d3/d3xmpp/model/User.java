@@ -27,6 +27,8 @@ public class User {
 	public String adr;
 	public VCard vCard;
 	public Bitmap bitmap;
+	public double lat = 0.0;
+	public double lon = 0.0;
 	
 	public User() {
 		super();
@@ -40,6 +42,12 @@ public class User {
 			sex = vCard.getField("sex");
 			mobile = vCard.getField("mobile");
 			adr = vCard.getField("adr");
+			String latAndlon = vCard.getField("latAndlon");
+			if (latAndlon!=null && !latAndlon.equals("")) {
+				String[] latAndLons = latAndlon.split(",");
+				lat = Double.valueOf(latAndLons[0]);
+				lon = Double.valueOf(latAndLons[1]);
+			}
 			this.vCard = vCard;
 			bitmap = ImageUtil.getBitmapFromBase64String(vCard.getField("avatar"));
 		}

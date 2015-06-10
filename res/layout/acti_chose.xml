@@ -15,7 +15,7 @@
         android:orientation="horizontal" >
 
         <ImageView
-            android:id="@+id/leftBtn"
+            android:id="@+id/leftBtn1"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
@@ -49,6 +49,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/search_input_bg"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:gravity="center"
         android:orientation="horizontal" >
 
@@ -63,8 +65,8 @@
                 android:id="@+id/searchText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:background="@drawable/input_bg" />
+                android:background="@drawable/input_bg"
+                android:singleLine="true" />
 
             <ImageView
                 android:id="@+id/searchImg"
@@ -75,11 +77,14 @@
                 android:src="@drawable/search" />
         </RelativeLayout>
 
-        <Button
-            android:id="@+id/selectAllBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="全选" />
+        
+        <ImageView 
+             android:id="@+id/selectAllBtn"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:src="@drawable/login_check"
+             android:layout_marginRight="20dp"
+             />
     </LinearLayout>
 
     <FrameLayout
@@ -120,6 +125,7 @@
             <EditText
                 android:id="@+id/nameText"
                 style="@style/input"
+                android:singleLine="true"
                 android:layout_margin="10dp" />
 
             <RelativeLayout

@@ -19,6 +19,7 @@ import com.d3.d3xmpp.d3View.D3View;
 import com.d3.d3xmpp.model.User;
 import com.d3.d3xmpp.util.MyAndroidUtil;
 import com.d3.d3xmpp.util.Tool;
+import com.d3.d3xmpp.util.Util;
 import com.d3.d3xmpp.util.XmppLoadThread;
 import com.d3.d3xmpp.xmpp.XmppConnection;
 
@@ -46,15 +47,16 @@ public class RegActivity extends BaseActivity {
 			String againPwd = pwdText1.getText().toString();
 			if (TextUtils.isEmpty(name)) {
 				Tool.initToast(RegActivity.this, getString(R.string.register_name));
-			} else if (TextUtils.isEmpty(pwd)) {
+			}
+			else if (TextUtils.isEmpty(pwd)) {
 				Tool.initToast(RegActivity.this, getString(R.string.register_password));
 			} else if (TextUtils.isEmpty(againPwd)) {
 				Tool.initToast(RegActivity.this, getString(R.string.register_again_password));
 			} else if (!againPwd.equals(pwd)) {
 				Tool.initToast(RegActivity.this, getString(R.string.register_password_defferent));
-			} else if (emailText.equals("")) {
+			} else if (emailText.equals("") || !Util.getInstance().isEmail(emailText.getText().toString())) {
 				Tool.initToast(RegActivity.this, getString(R.string.register_email_error));
-			} 
+			}
 			else {
 				createAccount(name, pwd);
 			}
@@ -75,6 +77,7 @@ public class RegActivity extends BaseActivity {
 				try {
 					result = XmppConnection.getInstance().regist(userName, passWord);
 					if (result!=null && result.getType() == IQ.Type.RESULT) {
+						XmppConnection.getInstance().closeConnection();
 						//ÕÍ…∆–≈œ¢
 						Constants.loginUser = new User();
 						Constants.loginUser.username = name;
@@ -107,32 +110,15 @@ public class RegActivity extends BaseActivity {
 				} else if (result.getType() == IQ.Type.RESULT) {
 					Tool.initToast(getApplicationContext(), getString(R.string.register_success));
 					Constants.USER_NAME = name;
+					Constants.PWD = pwd;
 					MyAndroidUtil.editXmlByString(Constants.LOGIN_ACCOUNT, name);
 					MyAndroidUtil.editXmlByString(Constants.LOGIN_PWD, pwd);
+					MyAndroidUtil.editXml(Constants.LOGIN_CHECK, true);
 					
-					Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-					startActivity(intent);
+					Intent intent = new Intent(RegActivity.this, MainActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(intent); 
 					finish();
-//					Map<String, String> map = new HashMap<String, String>();
-//					map.put("userName", name);
-//					map.put("email", emailText.getText().toString());
-//					if (!TextUtils.isEmpty(phoneText.getText().toString())) {
-//						map.put("mobile", phoneText.getText().toString());
-//						Constants.loginUser.mobile = phoneText.getText().toString();
-//					}
-//					new LoadThread(RegActivity.this,Constants.SAVE_USER,map) {
-//						@Override
-//						protected void refreshUI(String result) {
-//							Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//							startActivity(intent);
-//							finish();
-//						}
-//					};
-					
-					
-					
-					
-					
 				}
 			}
 

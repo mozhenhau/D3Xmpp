@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
@@ -24,10 +25,12 @@ import android.widget.TextView;
 
 import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.activites.FriendActivity;
+import com.d3.d3xmpp.activites.MapActivity;
 import com.d3.d3xmpp.activites.ShowPicActivitiy;
 import com.d3.d3xmpp.activites.WebActivity;
 import com.d3.d3xmpp.constant.Constants;
 import com.d3.d3xmpp.constant.ImgConfig;
+import com.d3.d3xmpp.constant.MyApplication;
 import com.d3.d3xmpp.d3View.expression.ExpressionUtil;
 import com.d3.d3xmpp.d3View.gifView.GifView;
 import com.d3.d3xmpp.d3View.gifView.GifView.GifImageType;
@@ -48,7 +51,7 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 	private static int[] resFrom = { R.drawable.voicefrom0, R.drawable.voicefrom1,
 		R.drawable.voicefrom2, R.drawable.voicefrom3 };
 	private String username = null;
-	private Bitmap bitmap = null;
+	private Bitmap bitmap;
 	
 	public static interface MsgType {
 		int MSG_OUT = 0;
@@ -116,12 +119,17 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 		//head
 		if (item.inOrOut == 0 ) {  //接收
 			if (item.chatType == ChatItem.CHAT) {
-				viewHolder.head.setImageDrawable(ImgHandler.ToCircularBig(R.drawable.default_icon));
 				if (bitmap == null) {
 					User user = new User(XmppConnection.getInstance().getUserInfo(username));
 					bitmap = user.bitmap;
 				}
-				viewHolder.head.setImageBitmap(bitmap);
+				
+				if (bitmap == null) {
+					viewHolder.head.setImageDrawable(ImgHandler.ToCircularBig(R.drawable.default_icon));
+				}
+				else {
+					viewHolder.head.setImageBitmap(bitmap);
+				}
 			}
 			else{
 				ImgConfig.showHeadImg(item.username, viewHolder.head);
@@ -179,24 +187,13 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 		else if(item.msg != null && item.msg.contains("[/f0")){ // 适配表情
 			viewHolder.msgView.setText(ExpressionUtil.getText(cxt,StringUtil.Unicode2GBK(item.msg)));
 		}
+		else if(item.msg != null && item.msg.contains("[/a0")){ // 适配地图
+			viewHolder.msgView.setVisibility(View.GONE);
+			showMap(viewHolder.img, item.msg);
+		}
 		else{
 			viewHolder.msgView.setText(item.msg);
 		}
-		
-		//if noti
-		if (item.chatType == ChatItem.NOTI) {
-			viewHolder.msgView.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);//下划线
-			viewHolder.msgView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent(cxt,WebActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					intent.putExtra("url", item.url);
-					cxt.startActivity(intent);
-				}
-			});
-		}
-		
 		
 		if (item.chatType == ChatItem.GROUP_CHAT && item.inOrOut == 0) {
 			viewHolder.nameView.setVisibility(View.VISIBLE);
@@ -242,14 +239,36 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 			}
 		});
 		
-		//内容复制
+//		//内容复制
 		img.setOnLongClickListener(new OnLongClickListener() {
 			@SuppressLint("NewApi")
 			@Override
 			public boolean onLongClick(View v) {
-				FileUtil.changeFile(path, Constants.IMG_PATH+"/"+FileUtil.getFileName(path));
-				Tool.initToast(cxt,"图片已保存至本地");
+//				FileUtil.changeFile(path, Constants.IMG_PATH+"/"+FileUtil.getFileName(path));
+				Tool.initToast(cxt,"图片已保存至本地"+path);
+		        MyApplication.getInstance().sendBroadcast(
+		        		new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,Uri.parse("file://"+path)));
 				return false;
+			}
+		});
+	}
+	
+	private void showMap(ImageView img,String msg){
+		img.setVisibility(View.VISIBLE);
+		img.setImageResource(R.drawable.map);
+		String[] adrs = msg.split(",");
+		final double lat =  Double.valueOf(adrs[1]);
+		final double lon =  Double.valueOf(adrs[2]);
+		
+		img.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra("lat", lat);
+				intent.putExtra("lon", lon);
+				intent.setClass(cxt, MapActivity.class);
+				cxt.startActivity(intent);
 			}
 		});
 	}
@@ -290,6 +309,7 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 	 * @param voice
 	 * @param isOut
 	 */
+	public MediaPlayer mping = new MediaPlayer();
 	private void playSound(String file,TextView soundDuration,final ImageView voice,final boolean isOut) {
 		final MediaPlayer mp = new MediaPlayer();
 		voice.setVisibility(View.VISIBLE);
@@ -311,9 +331,10 @@ public class ChatAdapter extends ArrayAdapter<ChatItem>{
 			@Override
 			public void onClick(View v) {
 				if(mp.isPlaying())
-					mp.pause();
+					mp.stop();
 				else{
 					mp.start();
+					mping = mp;
 					new CountDownTimer(mp.getDuration(), 500) {
 						int i =0;
 						@Override

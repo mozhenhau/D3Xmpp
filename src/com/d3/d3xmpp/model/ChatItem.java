@@ -21,7 +21,6 @@ public class ChatItem implements Serializable{
 	
 	//选用
 	public Bitmap headBitmap;
-	public String url;  //通知用
 
 	public ChatItem() {
 		super();

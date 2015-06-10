@@ -20,11 +20,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +35,6 @@ import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.activites.ChangePwdActivity;
 import com.d3.d3xmpp.activites.CropImageActivity;
 import com.d3.d3xmpp.activites.LoginActivity;
-import com.d3.d3xmpp.activites.MainActivity;
 import com.d3.d3xmpp.activites.PicSrcPickerActivity;
 import com.d3.d3xmpp.constant.Constants;
 import com.d3.d3xmpp.constant.MyApplication;
@@ -40,6 +42,8 @@ import com.d3.d3xmpp.d3View.D3Fragment;
 import com.d3.d3xmpp.d3View.D3View;
 import com.d3.d3xmpp.util.CircularImage;
 import com.d3.d3xmpp.util.MyAndroidUtil;
+import com.d3.d3xmpp.util.Tool;
+import com.d3.d3xmpp.util.Util;
 import com.d3.d3xmpp.util.XmppLoadThread;
 import com.d3.d3xmpp.util.wheel.OnWheelChangedListener;
 import com.d3.d3xmpp.util.wheel.WheelView;
@@ -57,9 +61,11 @@ import com.d3.d3xmpp.xmpp.XmppConnection;
 public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 	@D3View(click="onClick")LinearLayout headLayout,nickLayout,nameLayout,emailLayout,phoneLayout,pwdLayout,sexLayout,signLayout,adrLayout,changeLayout,changeAdrLayout;
 	@D3View TextView usernameView,nameView,emailView,phoneView,sexView,signView,changeNameView,adrView; //nickView,
+	@D3View ScrollView scrollView;
 	@D3View EditText changeText;
 	@D3View RadioGroup sexGroup;
 	@D3View RadioButton manRadio,womanRadio;
+	@D3View CheckBox shakeBtn, soundBtn,shareBtn;
 	@D3View(click="onClick") CircularImage headView;
 	@D3View(click="onClick")Button exitBtn,subBtn,sureBtn,cancelBtn;
 	private String field;
@@ -106,7 +112,7 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 				adrView.setText(Constants.loginUser.adr);
 			}
 		}
-		sexGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		sexGroup.setOnCheckedChangeListener(new android.widget.RadioGroup.OnCheckedChangeListener() {
 			
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -118,8 +124,50 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 				}
 			}
 		});
+		shakeBtn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					MyAndroidUtil.editXml("isShake", true);
+				} else {
+					MyAndroidUtil.editXml("isShake", false);
+				}
+			}
+		});
+
+		soundBtn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					MyAndroidUtil.editXml("isSound", true);
+				} else {
+					MyAndroidUtil.editXml("isSound", false);
+				}
+			}
+		});
 		
+		shareBtn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					MyAndroidUtil.editXml("isShare", true);
+					MyApplication.getInstance().uploadAdr();
+				} else {
+					MyAndroidUtil.editXml("isShare", false);
+					MyApplication.getInstance().clearAdr();
+				}
+			}
+		});
 		
+		shareBtn.setChecked(MyApplication.sharedPreferences.getBoolean("isShare", true));
+		shakeBtn.setChecked(MyApplication.sharedPreferences.getBoolean("isShake", true));
+		soundBtn.setChecked(MyApplication.sharedPreferences.getBoolean("isSound", true));
 		return view;
 	}
 	
@@ -138,6 +186,7 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 			Constants.USER_NAME = "";
 			Constants.loginUser = null;
 			XmppConnection.getInstance().getFriendList().clear();
+			XmppConnection.getInstance().myRooms.clear();
 			XmppConnection.getInstance().closeConnection();
 			getActivity().startActivity(new Intent(getActivity(), LoginActivity.class));
 			getActivity().finish();
@@ -145,20 +194,20 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 			
 		case R.id.subBtn:
 			//提交修改
-//			Map<String, String> map = new HashMap<String, String>();
-//			map.put("userName", Constants.USER_NAME);
-//			map.put(field, changeText.getEditableText().toString());
-			changeView.setText(changeText.getEditableText().toString());
-			Constants.loginUser.vCard.setField(field, changeText.getEditableText().toString());
-			XmppConnection.getInstance().changeVcard(Constants.loginUser.vCard);
-//			new LoadThread(getActivity(),Constants.UPDATE_USER,map) {
-//				@Override
-//				protected void refreshUI(String result) {
-//					Log.e("update", "更新成功");
-//				}
-//			};
-			changeLayout.setVisibility(View.GONE);
-			changeText.setText("");
+			String cText = changeText.getEditableText().toString();
+			if (field.equals("mobile") && !Util.getInstance().isMobileNumber(cText)) {
+				Tool.initToast(getActivity().getApplicationContext(), "不是手机号码");
+			}
+			else if(field.equals("email") && !Util.getInstance().isEmail(cText)){
+				Tool.initToast(getActivity().getApplicationContext(), "不是邮箱");
+			}
+			else {
+				changeView.setText(changeText.getEditableText().toString());
+				Constants.loginUser.vCard.setField(field, changeText.getEditableText().toString());
+				XmppConnection.getInstance().changeVcard(Constants.loginUser.vCard);
+				changeLayout.setVisibility(View.GONE);
+				changeText.setText("");
+			}
 			break;
 			
 		case R.id.cancelBtn:
@@ -223,6 +272,7 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 		changeNameView.setText(name);
 		this.field = field;
 		this.changeView = fieldView;
+		scrollView.fullScroll(ScrollView.FOCUS_UP);
 	}
 	
 	
@@ -409,5 +459,11 @@ public class MeFragment extends D3Fragment implements OnWheelChangedListener{
 		Constants.loginUser.vCard.setField("adr", mCurrentDistrictName);
 		XmppConnection.getInstance().changeVcard(Constants.loginUser.vCard);
 		changeAdrLayout.setVisibility(View.GONE);
+	}
+	
+	@Override
+	public void onResume() {
+		changeText.clearFocus();
+		super.onResume();
 	}
 }

@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.d3.d3xmpp.R;
 import com.d3.d3xmpp.constant.Constants;
 import com.d3.d3xmpp.constant.ImgConfig;
+import com.d3.d3xmpp.constant.MyApplication;
+import com.d3.d3xmpp.dao.NewFriendDbHelper;
 import com.d3.d3xmpp.model.Friend;
 import com.d3.d3xmpp.util.CircularImage;
 import com.d3.d3xmpp.util.Tool;
@@ -45,7 +47,7 @@ public class SearchAdapter extends ArrayAdapter<String> {
 		
 		nameView.setText(item);
 		ImgConfig.showHeadImg(item, imgView);
-		if (Constants.USER_NAME.equals(item) || XmppConnection.getInstance().getFriendList().contains(new Friend(item))) {
+		if (NewFriendDbHelper.getInstance(getContext()).isDeal(item)) {
 			addBtn.setVisibility(View.GONE);
 		}
 		else{
@@ -61,6 +63,7 @@ public class SearchAdapter extends ArrayAdapter<String> {
 							if ((Boolean) o) {
 								Tool.initToast(context, context.getString(R.string.add_friends_success));
 								addBtn.setVisibility(View.GONE);
+								NewFriendDbHelper.getInstance(MyApplication.getInstance()).delFriend(item);
 							}
 						}
 	

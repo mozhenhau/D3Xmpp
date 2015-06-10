@@ -14,8 +14,8 @@
             android:id="@+id/leftBtn"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_marginLeft="5dip"
-            android:src="@drawable/btn_back"
+            android:layout_marginLeft="15dip"
+            android:src="@drawable/icon_refresh"
             android:layout_gravity="center_vertical"
             android:visibility="gone" />
 

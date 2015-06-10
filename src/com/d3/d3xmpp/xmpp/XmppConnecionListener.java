@@ -30,6 +30,7 @@ public class XmppConnecionListener implements ConnectionListener {
 			Constants.USER_NAME = "";
 			Constants.loginUser = null;
 			XmppConnection.getInstance().closeConnection();
+			MyApplication.getInstance().sendBroadcast(new Intent("conflict"));
 			//Ìø×ª
 			Intent intent = new Intent();
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -46,7 +47,7 @@ public class XmppConnecionListener implements ConnectionListener {
 
 	@Override
 	public void reconnectionSuccessful() {
-
+		XmppConnection.getInstance().loadFriendAndJoinRoom();
 //		Log.e("smack xmpp", "suc");
 	}
 

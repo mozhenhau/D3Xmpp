@@ -57,7 +57,7 @@
         android:paddingBottom="10dp"
         android:transcriptMode="normal" />
 
-	 <!-- <Button
+	 <Button
             android:id="@+id/exitBtn"
             style="@style/white20Text"
             android:layout_width="fill_parent"
@@ -67,5 +67,5 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
             android:background="@drawable/btn"
-            android:text="退出群聊" /> -->
+            android:text="退出群聊" />
 </LinearLayout>
