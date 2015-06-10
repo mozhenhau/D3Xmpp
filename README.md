@@ -22,5 +22,5 @@ universal-image-loader-1.9.3.jar
 6. 位置共享（实验功能，openfire需要安装插件）
 
 ##使用
-1.修改Constant类下的openfire服务器地址
-2.修改XmppConnection类下的SERVER_NAME为自己openfire设置的域
+1. 修改Constant类下的openfire服务器地址
+2. 修改XmppConnection类下的SERVER_NAME为自己openfire设置的域
