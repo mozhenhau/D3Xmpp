@@ -20,3 +20,7 @@ universal-image-loader-1.9.3.jar
 4. 语音、图片、表情、动态表情、发送位置聊天（位置需要注册百度api）
 5. 群聊（openfire需要安装插件）
 6. 位置共享（实验功能，openfire需要安装插件）
+
+##使用
+1. 修改Constant类下的openfire服务器地址
+2. 修改XmppConnection类下的SERVER_NAME为自己openfire设置的域
