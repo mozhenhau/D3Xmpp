@@ -24,3 +24,8 @@ universal-image-loader-1.9.3.jar
 ##使用
 1. 修改Constant类下的openfire服务器地址
 2. 修改Constant类下的SERVER_NAME为自己openfire设置的域
+ 
+##提醒
+这个项目不会再更新了，这个是很久以前的做的demo， 本人现在已经不是一名安卓开发了。  开源出来只是想让学xmpp的朋友一个参考， 希望经过自己思考后自己写，不要直接应用。 
+群聊相关开源参考：http://blog.csdn.net/yangzl2008/article/details/16991175
+
